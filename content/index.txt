@@ -1,0 +1,20 @@
+---
+title:       Realtime Web Monitoring
+created_at:  September 17, 2011 5:18:50 PM MDT
+filter:
+  - erb
+  - markdown
+  - textile
+---
+
+## Overview
+This project was started because while there are log monitoring solutions and even
+a few realtime website analytics products out there I have not found that right
+mix of features in an opensource project that scratched all the right places.
+
+There are a few primary use cases for this software, namely:
+
+*  High performance log aggregation from servers, applications and security appliances.
+*  Security Event Monitoring and Evaluation
+*  Simple website analytics
+
