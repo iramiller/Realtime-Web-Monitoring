@@ -8,6 +8,12 @@ using log4net;
 
 namespace ConsoleSyslogPublisher
 {
+	/// <summary>
+	/// This console program is designed to be a target for Apache piped logs on 
+	/// windows.  The output of this console app will match the format of data
+	/// sent from the IIS7 Event source (IISNSL) so that data from Apache web
+	/// servers can seamlessly be combined with that from Windows Servers.
+	/// </summary>
 	public class Program
 	{
 		private static long _globalId = DateTime.Now.Ticks;
