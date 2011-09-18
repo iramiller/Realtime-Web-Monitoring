@@ -97,6 +97,12 @@ directive will prevent the modules from being removed from the app pool if set.
      </system.webServer>
  </location>
 <% end %>
+
+#### Configuration Schema
+The last configuration piece is to place the configuration section schema file into
+the registry of schema for IIS by copying `NativeSyslogPublisher_Schema.xml` into the
+`%windir%\System32\inetsrv\config\schema` directory.
+
 ----------------------------------
 
 <a name="dev"></a>

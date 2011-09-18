@@ -1,0 +1,12 @@
+---
+title:       Event Sink Windows Service
+created_at:  September 17, 2011 5:18:50 PM MDT
+filter:
+  - erb
+  - markdown
+---
+<%= breadcrumbs(@page) %>
+
+## Event Sink Windows Service
+
+

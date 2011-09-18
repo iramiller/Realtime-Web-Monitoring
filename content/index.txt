@@ -25,8 +25,8 @@ in the database and the viewers which display the information.
 ### Collectors
 
 *  [IIS7 Native Syslog Module](/collectors/nativeiis7.html)
-*  Apache Piped Log Relay Module
-*  Log4Net UDP Appender Configuration
+*  [Apache Piped Log Relay Module](/collectors/apache-win.html)
+*  [Log4Net UDP Appender Configuration](/collectors/log4net.html)
 
 ### Event Sinks
 
