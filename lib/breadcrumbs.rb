@@ -16,7 +16,7 @@ module BreadcrumbsHelper
     end
     list.reverse!
 
-    html = "<ul class=\"breadcrumbs\">\n"
+    html = "<ul class=\"breadcrumbs clearfix\">\n"
     html << list.join("\n")
     html << "\n</ul>\n"
     html

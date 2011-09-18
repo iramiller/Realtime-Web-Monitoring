@@ -19,13 +19,13 @@ filter:    erb
    <![endif]-->
 
    <!-- CodeRay syntax highlighting CSS -->
-   <link rel="stylesheet" href="/css/coderay.css" type="text/css" />
+   <link rel="stylesheet" href="/css/code.css" type="text/css" />
 
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/css/site.css" type="text/css" media="screen, projection" />
 </head>
 <body>
-
+<a href="http://github.com/iramiller/Realtime-Web-Monitoring"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png" alt="Fork me on GitHub"></a>
 <div class="container">
 
    <div class="column span-20 prepend-2 append-2 first last" id="header">
@@ -35,24 +35,40 @@ filter:    erb
 
    <div class="column span-15 prepend-2 first">
       <%= @content %>
+      <hr/>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+	      /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+      	var disqus_shortname = 'rwebmon'; // required: replace example with your forum shortname
+
+      	/* * * DON'T EDIT BELOW THIS LINE * * */
+      	(function() {
+      		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      		dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      	})();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
    </div>
 
    <div class="column span-5 append-2 last">
       <h4>Up Coming</h4>
-      <p>Check out my presentation at the 2011 Montana State University Security
-      Confernce in Bozeman, MT.  I will be covering how real-time analytics can
+      <img src="/images/snr-keynote.png" width="190" alt="Signal in the Noise Presentation Graphic" />
+      <p>Check out my presentation at the <a href="http://www.montana.edu/securityconference/">2011 MSU Security Conference</a> in Bozeman, MT.  I will be covering how real-time analytics can
       be an integral part of a website security plan.</p>
-
-      <div class="box">
-         <p class="last"><a href="http://www.montana.edu/securityconference/">2011 MSU Security Conference</a>, September 20th, 2011 in Bozeman MT</p>
-      </div>
-
-      <p class="quiet">The <a href="https://github.com/iramiller/Realtime-Web-Monitoring">Realtime Web Monitoring</a> source code is available on GitHub.</p>
+      <hr />
+      <h4>Download</h4>
+      <p>The <a href="https://github.com/iramiller/Realtime-Web-Monitoring">Realtime Web Monitoring</a> source code is available on GitHub.</p>
    </div>
 
    <div class="column span-20 prepend-2 append-2 first last" id="footer">
      <hr />
-     <p>This website was created with <a href="http://webby.rubyforge.org">Webby</a></p>
+     <p>
+     	<a href="http://rtm.aspectwest.net">Home</a> |
+     	<a href="https://github.com/iramiller/Realtime-Web-Monitoring">Use the Source</a>
+     	<br/>
+     	Copyright 2011 by <a href="https://plus.google.com/116516625975906643370">Ira Miller</a>
+     </p>
    </div>
 
 </div>

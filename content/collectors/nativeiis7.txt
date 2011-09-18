@@ -1,0 +1,132 @@
+---
+title:       Native IIS7 SYSLOG Module
+created_at:  September 17, 2011 5:18:50 PM MDT
+filter:
+  - erb
+  - markdown
+---
+<%= breadcrumbs(@page) %>
+
+## Native IIS7 Collector
+
+### Overview
+
+The IIS7 Event collector is a C++ HTTPModule which will run in 32 and 64 bit
+application pools.  The module is implemented in C++ as a native module instead
+of as a managed module (which would have been easier to code) because the flexibility
+is needed for the module to run in any application pool on the server.  A managed
+httpmodule would only function in integrated mode.
+
+*  [Installation](/collectors/nativeiis7.html#install)
+    *  Basic Settings
+    *  Configuration Schema
+    *  applicationHost.config
+*  [Development](/collectors/nativeiis7.html#dev)
+    *  Bindings
+    *  Request Start
+    *  On Send Request
+    *  Syslog Sender
+    
+----------------------------------
+
+<a name="install"></a>
+### Installation
+The IIS7 Event Collector module is designed to be installed as a global module
+in the root configuration of IIS.  By installing this way all websites configured
+on the IIS server will have the module included in their processing pipelines.
+
+In order to install the module this way the root configurations of IIS must be
+modified.  This is a straight forward process but it goes without saying that you
+should probably make backup copies of all of these files before making changes -- 
+even if you know what you are doing.
+
+The first step is to build the NativeSyslogModule project in both 32bit and 64bit
+formats.  The easiest way to do this is to open the 
+`/source/Collectors/IIS7/NativeSyslogPublisher.vcxproj` in Visual Studio and build
+both 32 and 64bit release targets.  There are two DLL files which must be copied on
+to the servers (along with the MSVCRT100.dll files if not present).  Keep track of
+the paths to the files because they are used below.
+
+#### applicationHost.config
+There are several pieces to edit in this file.  The first step is to register
+the configuration section near the top of the file.
+<% code 'xml' do %>
+ <configSections>
+    ...
+    <sectionGroup name="system.webServer">
+        <section name="nativeSyslogPublisher" overrideModeDefault="Deny" />
+        ...
+    </sectionGroup>
+ </configSections>
+<% end %>
+
+Next up are the references to the assemblies themselves.  Make sure the bitness flags match the
+assembly formats or IIS will not function.
+<% code 'xml' do %>
+ <globalModules>
+    ...
+    <add name="NativeSyslogPublisher" 
+    image="PATH-TO-FILE\NativeSyslogPublisher.dll" preCondition="bitness32" />
+    <add name="NativeSyslogPublisher-x64" 
+    image="PATH-TO-FILE\NativeSyslogPublisher-64.dll" preCondition="bitness64" />	
+ </globalModules>
+<% end %>
+
+The nativeSyslogPublisher directive is the piece we registered at the top of the file.
+There are several different properties which can be set in this section.  The defaults
+are generally fine except for the logServer property which should be set to the IP address
+of your server that is running the Event Sink.  The rest of the properties can be found
+in the NativeSyslogPublisher_schema.xml file.
+<% code 'xml' do %>
+   <nativeSyslogPublisher logServer="127.0.0.1" />
+<% end %>
+ 
+While the DLL files were registered above and will be loaded by IIS on startup, this
+section actually associates the modules with every application pool.  The lockItem
+directive will prevent the modules from being removed from the app pool if set.
+<% code 'xml' do %>
+ <location path="" overrideMode="Allow">
+     <system.webServer>
+         <modules>
+             ...
+             <add name="NativeSyslogPublisher" lockItem="false" 
+             preCondition="bitness32" />
+             <add name="NativeSyslogPublisher-x64" lockItem="false"
+             preCondition="bitness64" />
+         </modules>
+     </system.webServer>
+ </location>
+<% end %>
+----------------------------------
+
+<a name="dev"></a>
+### Development
+The IIS7 Module is feature complete at this point.  There may be some bug fixing
+required but at this time there are no outstanding issues.  It would be possible
+to port this code so that it would run on IIS6 by binding to slightly different
+notifications since these changed between IIS6 and IIS7.  That said there is no
+effort being applied to build an IIS6 version because it is old and very inferior
+to IIS7.
+
+#### Bindings
+The HTTP Module hooks the start request and send response events.  It is important
+for computing the correct timing that we are near the first of the modules to be 
+called at the start of the request and for when the request is sent.  Paradoxically
+we must be the lowest priority for the send response registration.  This is explained
+by the need for most important filters to have the final say in changing a response
+on send.
+
+<% code 'c++' do %>
+    // to properly capture time we need to capture the starting ticks before
+    // any others.
+    hr = pModuleInfo->SetPriorityForRequestNotification(RQ_BEGIN_REQUEST,
+                                                        PRIORITY_ALIAS_FIRST);
+    // For send response priority is inverted.  Because we are capturing
+    // timing for TTFB we come first (lowest priority) here.
+    hr = pModuleInfo->SetPriorityForRequestNotification(RQ_SEND_RESPONSE,
+                                                        PRIORITY_ALIAS_LAST);
+<% end %>
+
+#### Starting the Capture
+grab the current time, setup some variables (these are all local as a new instance
+is created for each and every request.  that sounds expensive)

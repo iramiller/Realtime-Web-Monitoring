@@ -1,10 +1,9 @@
 ---
-title:       Realtime Web Monitoring
+title:       Realtime Website Monitoring
 created_at:  September 17, 2011 5:18:50 PM MDT
 filter:
   - erb
   - markdown
-  - textile
 ---
 
 ## Overview
@@ -17,4 +16,24 @@ There are a few primary use cases for this software, namely:
 *  High performance log aggregation from servers, applications and security appliances.
 *  Security Event Monitoring and Evaluation
 *  Simple website analytics
+
+## System Components
+There are three major components of the system.  The collectors which capture and
+forward log events, the event sink which processes the data and stores information
+in the database and the viewers which display the information.
+
+### Collectors
+
+*  [IIS7 Native Syslog Module](/collectors/nativeiis7.html)
+*  Apache Piped Log Relay Module
+*  Log4Net UDP Appender Configuration
+
+### Event Sinks
+
+*  Console Testing Sink
+*  Event Storage & Processing Windows Service
+
+### Event Viewers
+
+*  .NET MVC3 Website
 
