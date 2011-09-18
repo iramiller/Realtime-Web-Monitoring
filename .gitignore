@@ -2,3 +2,4 @@ output
 *.swp
 *.sw0
 *~
+.DS_Store

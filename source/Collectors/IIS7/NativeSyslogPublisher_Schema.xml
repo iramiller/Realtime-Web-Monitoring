@@ -1,0 +1,61 @@
+﻿<!--
+ ============================================================================================
+ Native IIS Syslog Publisher Module Configuration
+ ============================================================================================
+ 
+ 
+ Registering the Module Configuration
+ ============================================================================================
+ 1. Add the follow section to %windir%\system32\inetsrv\config\applicationHost.config
+
+ <configSections>
+    ...
+    <sectionGroup name="system.webServer">
+        <section name="nativeSyslogPublisher" overrideModeDefault="Deny" />
+        ...
+    </sectionGroup>
+ </configSections>
+
+ <globalModules>
+    ...
+    <add name="NativeSyslogPublisher" image="D:\RealtimeMonitoring\NativeSyslogPublisher.dll" preCondition="bitness32" />
+    <add name="NativeSyslogPublisher-x64" image="D:\RealtimeMonitoring\NativeSyslogPublisher-64.dll" preCondition="bitness64" />	
+ </globalModules>
+ 
+ <nativeSyslogPublisher logServer="127.0.0.1" />
+ 
+ <location path="" overrideMode="Allow">
+     <system.webServer>
+         <modules>
+             ...
+             <add name="NativeSyslogPublisher" lockItem="false" preCondition="bitness32" />
+             <add name="NativeSyslogPublisher-x64" lockItem="false" preCondition="bitness64" />
+         </modules>
+     </system.webServer>
+ </location>
+
+ 2. Place this file in the %windir%\System32\inetsrv\config\schema directory
+ 
+ ============================================================================================
+ 
+ 
+ Configuration Settings
+ ============================================================================================
+ Log Server:		This is the IP Address to send the Syslog messages to
+ Port:				Port the syslog server is listening on
+ Facility:			The code to use for the messages being sent.
+ MaxMessageLength:	The maximum length that messages are allowed to be in octets.  This value
+					must be less than the minimum MTU of the network.  The default
+					industry standard is 1024
+ 
+ 
+ ============================================================================================
+-->
+<configSchema>
+	<sectionSchema name="system.webServer/nativeSyslogPublisher">
+		<attribute name="logServer"			type="string"	defaultValue="127.0.0.1"	expanded="true"		encrypted="false" />
+		<attribute name="port"				type="string"	defaultValue="514"			expanded="false"	encrypted="false" />
+		<attribute name="facility"			type="string"	defaultValue="14"			expanded="false"	encrypted="false" />
+		<attribute name="maxMessageLength"	type="uint"		defaultValue="1024"			expanded="false"	encrypted="false" />
+	</sectionSchema>
+</configSchema>

@@ -1,0 +1,5 @@
+LIBRARY	"NativeSyslogPublisher-64"
+
+EXPORTS
+    RegisterModule
+
