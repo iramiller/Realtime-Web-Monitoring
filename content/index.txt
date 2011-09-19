@@ -24,16 +24,26 @@ in the database and the viewers which display the information.
 
 ### Collectors
 
-*  [IIS7 Native Syslog Module](/collectors/nativeiis7.html)
-*  [Apache Piped Log Relay Module](/collectors/apache-win.html)
-*  [Log4Net UDP Appender Configuration](/collectors/log4net.html)
+*  [IIS7 Native Syslog Module](/collectors/nativeiis7.html) -- This component
+   relays data from IIS Servers to the Event Sinks
+*  [Apache Piped Log Data](/collectors/apache-win.html) -- Specifications for
+   configuring Apache to send data to the event sink.  A reference application
+   is included for windows.
+*  [Log4Net UDP Appender Configuration](/collectors/log4net.html) -- A
+   configuration for Log4Net so that application error data is sent to the Event
+   Sink.
 
-### Event Sinks
+### Sinks
 
-*  Console Testing Sink
-*  Event Storage & Processing Windows Service
+*  [Console Testing Sink](/sinks/console.html) -- A very simple Event Sink that
+   writes out event data to the console window.  This is useful for testing.
+*  [Event Processing Windows Service](/sinks/windowsservice.html) -- The primary
+   Event Sink program.  This tool logs event data into a MongoDB and provides
+   processing options using NEsper for event correlation and analysis.
 
-### Event Viewers
+### Viewers
 
-*  .NET MVC3 Website
+*  Web Dashboard -- A MVC3 .NET website for viewing event data using tables and
+   graphs generated from data stored in the Mongo database populated by the 
+   [Event Processing Windows Service](/sinks/windowsservice.html).
 

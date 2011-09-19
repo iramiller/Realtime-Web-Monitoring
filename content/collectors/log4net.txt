@@ -1,0 +1,43 @@
+---
+title:       Log4Net Configuration
+created_at:  September 17, 2011 5:18:50 PM MDT
+filter:
+  - erb
+  - markdown
+---
+<%= breadcrumbs(@page) %>
+
+## log4net Configuration
+
+The log4net library comes with the ability to relay event data for the monitoring
+system out of the box using the UdpAppender and a specific configuration.  Since
+we are using a standard appender all of the basic log4net features such as filtering
+by priority and source are available.
+
+#### log4net Config
+
+In order to use the configuration sample the `RemoteAddress` of the log server must
+be set along with the `APP-NAME` in the configuration fragment below.  
+
+<% code 'xml' do %>
+<log4net>
+	<appender name="RealtimeMonitoringAppender" type="log4net.Appender.UdpAppender">
+		<param name="RemoteAddress" value="127.0.0.1" />
+		<param name="RemotePort" value="514" />
+		<layout type="log4net.Layout.PatternLayout, log4net">
+			<param name="ConversionPattern" value="&lt;110&gt;
+%date{MMM dd HH:mm:ss} %property{log4net:HostName} L4N: %p APP-NAME %c - %m" />
+		</layout>
+	</appender>
+	<root>
+		<level value="INFO" />
+		<appender-ref ref="RealtimeMonitoringAppender" />
+	</root>
+</log4net>
+<% end %>
+__NOTE:__ The forced line break in the `ConversionPattern` is for display formatting only
+and must be removed for this fragment to work properly.
+
+This log4net configuration is the proper format for a SYSLOG RFC3164 message and
+can be used for any application that would like to send log4net data to a syslog
+server.
