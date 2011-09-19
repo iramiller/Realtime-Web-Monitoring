@@ -1,0 +1,82 @@
+﻿@{
+    ViewBag.Title = "Event Data";
+}
+
+<h2>Events</h2>
+<table id="eventTable" style="background-color:#1a1a1a;font-size:.9em;" cellspacing="0" cellpadding="4">
+	<thead id="eventHeader">
+	</thead>
+	<tbody id="eventBody">
+	</tbody>
+</table>
+<script type="text/javascript">
+
+	var lmt = @(HttpContext.Current.Request.QueryString["limit"] != null ? HttpContext.Current.Request.QueryString["limit"] : "20");
+	var src = "@(HttpContext.Current.Request.QueryString["src"] != null ? HttpContext.Current.Request.QueryString["src"] : "iis")";
+	var fltr = "@Html.Raw((HttpContext.Current.Request.QueryString["filter"] != null ? HttpContext.Current.Request.QueryString["filter"] : "").Replace("\"","\\\""))";
+	$().ready(function () {
+		$.ajax({
+			url: "./events/" + src,
+			dataType: "json",
+			data: {
+				limit: lmt,
+				filter: fltr
+			},
+			success: function (data) {
+				$("tbody#eventList").empty();
+				$("thead#eventHeader").empty();
+				var keys = getKeys(data[0]);
+
+				var header = $('<tr>').attr('style','height:2.2em;font-size:1.1em;');
+				$.each(keys, function (index, key) {
+					header.append($('<th>').text(key))
+				});
+				$("thead#eventHeader").append(header);
+
+				$.each(data, function (index, evt) {
+					var row = $('<tr>').attr('style', ((index % 2 == 0)? 'background-color:#222;' : '') + PriorityHighlightColor(evt["Priority"]));
+					for (k in keys) {
+						var txt = evt[keys[k]];
+						if (keys[k] != 'ClientAddress')
+							row.append($('<td>').text(' ' + txt))
+						else {
+							var t = $('<td>').attr('style','white-space:nowrap').append($('<img>').attr('width','16').attr('height','11').attr('src', '@Url.Content("~/analysis/locationflag?ip=")' + txt));
+							t.append($('<a>').attr('href', "@Url.Content("~/Home/Client?ip=")" + txt).text(' ' + txt));
+							row.append(t);
+						}
+
+					}
+					$("tbody#eventBody").append(row);
+				});
+			},
+			error: function (xhr, status, err) {
+				window.alert(status + ' ' + err);
+			}
+		});
+	});
+
+	function PriorityHighlightColor(pri) {
+		switch (pri) {
+			case 0: return "color:red";
+			case 1: return "color:red";
+			case 2: return "color:red";
+			case 3: return "color:red";
+			case 4: return "color:yellow";
+			case 6: return "color:light-gray";
+			case 7: return "color:light-gray";
+		}
+		return ""; // if our priority is null (not in the table set then we don't return anything
+	}
+
+	var getKeys = function (obj) {
+		var keys = [];
+		for (var key in obj) {
+			if (key == "_id" || key == "Facility" || key == "Priority")
+				continue;
+			keys.push(key);
+		}
+		return keys;
+	}
+</script>
+
+

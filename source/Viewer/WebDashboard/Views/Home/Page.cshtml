@@ -1,0 +1,276 @@
+﻿@{
+    ViewBag.Title = "Traffic for " + ViewBag.HostName + ViewBag.RequestPage;
+}
+
+<h2><a href="@Url.Content("~/Home/Site?n=")@ViewBag.HostName">@ViewBag.HostName</a>@ViewBag.RequestPage</h2>
+
+<div id="dateRange"><i>Loading...</i></div>
+<br />Time Frame :: 
+<a href="@Url.Content("~/Home/Page?h=6&n=")@ViewBag.HostName&r=@ViewBag.RequestPage">6h</a> |
+<a href="@Url.Content("~/Home/Page?h=12&n=")@ViewBag.HostName&r=@ViewBag.RequestPage">12h</a> |
+<a href="@Url.Content("~/Home/Page?h=24&n=")@ViewBag.HostName&r=@ViewBag.RequestPage">1d</a> |
+<a href="@Url.Content("~/Home/Page?h=72&n=")@ViewBag.HostName&r=@ViewBag.RequestPage">3d</a> |
+<a href="@Url.Content("~/Home/Page?h=168&n=")@ViewBag.HostName&r=@ViewBag.RequestPage">1w</a>
+<br /><br />
+<div class="graphContainer"> <!-- total traffic and by response code -->
+	<div class="legend"><ul id="trafficLegendList" class="legendList"></ul></div>
+	<div id="trafficTitle" class="graphTitle">Traffic Data</div>
+	<div id="trafficChart" class="graphChart"></div>
+	<div style="clear:both;"></div>
+</div>
+
+<br />
+
+<div class="graphContainer"> <!-- mix, max and avg response time -->
+	<div class="legend"><ul id="responseLegendList" class="legendList"></ul></div>
+	<div id="responseTitle" class="graphTitle">Response Time (ms)</div>
+	<div id="responseChart" class="graphChart"></div>
+	<div style="clear:both;"></div>
+</div>
+
+<br /><h3>Referers</h3>
+<table id="refererTable" style="width:900px;background-color:#1a1a1a;text-align:center">
+	<thead style="height:2.2em;">
+		<tr>
+			<th style="text-align:left;padding-left:5px;">
+				Count
+			</th>
+			<th>
+				Referer
+			</th>
+		</tr>
+	</thead>
+	<tbody id="refererList">
+	</tbody>
+</table>
+
+<br /><h3>Detected Searches</h3>
+<table id="searchTable" style="width:900px;background-color:#1a1a1a;text-align:center">
+	<thead style="height:2.2em;">
+		<tr>
+			<th style="text-align:left;padding-left:5px;">
+				Count
+			</th>
+			<th>
+				Terms
+			</th>
+		</tr>
+	</thead>
+	<tbody id="searchList">
+	</tbody>
+</table>
+
+<script type="text/javascript">
+
+	$().ready(function () {
+		trafficGraph.createTrafficChart();
+		latencyGraph.createTrafficChart();
+		pageTableData.loadData();
+	});
+
+	var pageTableData = {
+	
+		analysisPage: '@ViewBag.HostName@ViewBag.RequestPage',
+
+		reducedSet: null,
+		fullSet: {},
+
+		loadData: function () {
+			$.ajax({
+				url: "@Url.Content("~/analysis/pageviews")",
+				dataType: "json",
+				data: {
+					h: @ViewBag.Hours,
+					p: pageTableData.analysisPage
+				},
+				success: function (data) {
+					pageTableData.fullSet = data;
+					pageTableData.reducedSet = null;
+					latencyGraph.dataSet = { 'label': [], 'values': [] };
+					trafficGraph.dataSet = { 'label': [], 'values': [] };
+					$.each(data, function (index, rs) {
+						if (!pageTableData.reducedSet)
+							pageTableData.reducedSet = rs.value;
+						else
+							pageTableData.mergeData(pageTableData.reducedSet, rs.value);
+					});
+
+					$.each(pageTableData.reducedSet.referer, function (index, ref) {
+						$("tbody#refererList").append($('<tr>')
+							.append($('<td>').text(ref))
+							.append($('<td>').attr('align', 'left').text(index))
+						);
+					});
+					$.each(pageTableData.reducedSet.keywords, function (index, ref) {
+						$("tbody#searchList").append($('<tr>')
+							.append($('<td>').text(ref))
+							.append($('<td>').attr('align', 'left').text(index))
+						);
+					});
+
+					$.each(data.reverse(), function (index, dta) {
+						if (index < (data.length -1)) {
+							trafficGraph.updates = {};
+							$.each(dta.value.method, function (index, val) {
+								if (!trafficGraph.methodNames[index]) {
+									trafficGraph.methodNames[index] = 1;
+									trafficGraph.dataSet.label.push(index);
+									$.each(trafficGraph.dataSet.values, function (index, dval) {
+										dval.values.push(0);
+									});
+								}
+								trafficGraph.updates[index] = val;
+							});
+							var measures = [];
+							$.each(trafficGraph.dataSet.label, function (index, dl) {
+								measures.push((trafficGraph.updates[dl] ? trafficGraph.updates[dl] : 0));
+							});
+							trafficGraph.dataSet.values.push({ 'label': dta.value.dateLow, 'values': measures.slice(0, measures.length) });
+
+							latencyGraph.updates = {};
+							$.each(dta.value.latency, function (index, val) {
+								if (!latencyGraph.methodNames[index]) {
+									latencyGraph.methodNames[index] = 1;
+									latencyGraph.dataSet.label.push(index);
+									$.each(latencyGraph.dataSet.values, function (index, dval) {
+										dval.values.push(0);
+									});
+								}
+								latencyGraph.updates[index] = val;
+							});
+							measures = [];
+							$.each(latencyGraph.dataSet.label, function (index, dl) {
+								measures.push((latencyGraph.updates[dl] ? latencyGraph.updates[dl] : 0));
+							});
+							latencyGraph.dataSet.values.push({ 'label': dta.value.dateLow, 'values': measures.slice(0, measures.length) });
+						}
+					});
+					trafficGraph.sChart.loadJSON(trafficGraph.dataSet);
+					latencyGraph.sChart.loadJSON(latencyGraph.dataSet);
+
+					if (data.length < 1 || pageTableData.reducedSet.referer.length < 1)
+						$("tbody#refererList").append($('<tr>').append($('<td>').attr('colspan', '2').text('There is no data available for this period.')));
+					if (data.length < 1 || pageTableData.reducedSet.keywords.length < 1)
+						$("tbody#searchList").append($('<tr>').append($('<td>').attr('colspan', '2').text('There is no data available for this period.')));
+					$("div#dateRange")[0].innerHTML = @ViewBag.Hours + " Hours From " + FormatDateTime2(pageTableData.reducedSet.dateLow) + " to " + FormatDateTime2(pageTableData.reducedSet.dateHigh) + " (" + pageTableData.reducedSet.views + " total)";
+					setTimeout('trafficGraph.legendUpdate()', 1000);
+					setTimeout('latencyGraph.legendUpdate()', 1000);
+				},
+				error: function (xhr, status, err) {
+					window.alert(status + ' ' + err);
+				}
+			});
+		},
+
+		mergeData: function (source, other) {
+			source.dateLow = (source.dateLow < other.dateLow ? source.dateLow : other.dateLow);
+			source.dateHigh = (source.dateHigh > other.dateHigh ? source.dateHigh : other.dateHigh);
+
+			for (var m in other.method) {
+				source.method[m] = other.method[m] + (source.method[m] ? source.method[m] : 0);
+			}
+			for (var r in other.referer) {
+				source.referer[r] = other.referer[r] + (source.referer[r] ? source.referer[r] : 0);
+			}
+			for (var k in other.keywords) {
+				source.keywords[k] = other.keywords[k] + (source.keywords[k] ? source.keywords[k] : 0);
+			}
+			source.views += other.views;
+			source.latency.avg = ((source.latency.avg * source.latency.count) + (other.latency.avg * other.latency.count)) / (source.latency.count + other.latency.count);
+			source.latency.count += other.latency.count;
+			source.latency.min = source.latency.min < other.latency.min ? source.latency.min : other.latency.min;
+			source.latency.max = source.latency.max > other.latency.max ? source.latency.max : other.latency.max;
+			return source;
+		}
+	}
+
+	var trafficGraph = {
+		sChart: {},
+		dataSet: { 'label': [], 'values': [] },
+		methodNames: {},
+		updates: {},
+
+		createTrafficChart: function () {
+			this.sChart = new $jit.AreaChart({
+				injectInto: 'trafficChart',
+				animate: true,
+				Margin: { top: 5, left: 5, right: 5, bottom: 5 },
+				labelOffset: 10,
+				showAggregates: false,
+				type: 'stacked',
+				showLabels: false,
+				Label: { size: 8, family: 'Arial', color: 'white' },
+				Tips: {
+					enable: true,
+					onShow: function (tip, elem) {
+						tip.innerHTML = "<b>" + elem.name + "</b> (" + elem.value + ")";
+					}
+				},
+				filterOnClick: true,
+				restoreOnRightClick: true
+			});
+		},
+
+		legendUpdate: function () {
+			if (this.dataSet.values.length > 1) {
+				var legend = this.sChart.getLegend(), listItems = [];
+				for (var name in this.methodNames) {
+					var bcolor = ((legend[name]) ? legend[name] : "none");
+					listItems.push('<div class=\'query-color\' style=\'background-color:' + bcolor + '\'>&nbsp;</div>' + name);
+				}
+				listItems.sort(function (a, b) {
+					var aval = a.substring(a.lastIndexOf("(") + 1, a.lastIndexOf(")"));
+					var bval = b.substring(b.lastIndexOf("(") + 1, b.lastIndexOf(")"));
+					return bval - aval;
+				});
+				$('#trafficLegendList')[0].innerHTML = '<li>' + listItems.join('</li><li>') + '</li>';
+			}
+		}
+	};
+
+	var latencyGraph = {
+		sChart: {},
+		dataSet: { 'label': [], 'values': [] },
+		methodNames: {},
+		updates: {},
+
+		createTrafficChart: function () {
+			this.sChart = new $jit.AreaChart({
+				injectInto: 'responseChart',
+				animate: true,
+				Margin: { top: 5, left: 5, right: 5, bottom: 5 },
+				labelOffset: 10,
+				showAggregates: false,
+				//type: 'grouped',
+				showLabels: false,
+				Label: { size: 8, family: 'Arial', color: 'white' },
+				Tips: {
+					enable: true,
+					onShow: function (tip, elem) {
+						tip.innerHTML = "<b>" + elem.name + "</b> (" + elem.value + ")";
+					}
+				},
+				filterOnClick: true,
+				restoreOnRightClick: true
+			});
+		},
+
+		legendUpdate: function () {
+			if (this.dataSet.values.length > 1) {
+				var legend = this.sChart.getLegend(), listItems = [];
+				for (var name in this.methodNames) {
+					var bcolor = ((legend[name]) ? legend[name] : "none");
+					listItems.push('<div class=\'query-color\' style=\'background-color:' + bcolor + '\'>&nbsp;</div>' + name);
+				}
+				listItems.sort(function (a, b) {
+					var aval = a.substring(a.lastIndexOf("(") + 1, a.lastIndexOf(")"));
+					var bval = b.substring(b.lastIndexOf("(") + 1, b.lastIndexOf(")"));
+					return bval - aval;
+				});
+				$('#responseLegendList')[0].innerHTML = '<li>' + listItems.join('</li><li>') + '</li>';
+			}
+		}
+	};
+
+</script>
+

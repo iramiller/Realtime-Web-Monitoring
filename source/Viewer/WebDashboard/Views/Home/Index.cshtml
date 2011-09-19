@@ -1,0 +1,20 @@
+﻿@{
+    ViewBag.Title = "Web Status";
+}
+
+<h2>Web Status</h2>
+
+@Html.Partial("Graphs/_CurrentSessionBarGraph") 
+
+<br />
+
+@Html.Partial("Graphs/_CurrentTrafficGraph") 
+
+<br />
+
+@Html.Partial("Graphs/_CurrentServerTrafficGraph")
+
+<br /><h3>Recent High Latency Pages</h3>
+@Html.Partial("Tables/_RecentSlowPages")
+
+<!-- This system was built by Ira Miller using MongoDB, NEsper and the JIT (Java Infovis Toolkit).   All of these are open source projects -->

@@ -1,0 +1,30 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewBag.Title = ViewBag.HostName + " Status";
+}
+<h2>@ViewBag.HostName Status</h2>
+
+<script type="text/javascript">
+	var specificHost = '@ViewBag.HostName';
+</script>
+
+@Html.Partial("Graphs/_CurrentSessionBarGraph")
+
+<br />
+
+@Html.Partial("Graphs/_CurrentTrafficGraph")
+
+<br /><h3>Recent High Latency Pages</h3>
+@Html.Partial("Tables/_RecentSlowPages")
+
+<script type="text/javascript">
+	sessionGraph.specificHost = '@ViewBag.HostName';
+	slowPageTable.specificHost = '@ViewBag.HostName';
+	realtimeTrafficGraph.specificHost = '@ViewBag.HostName';
+</script>
+
+<style>
+.graphContainer { width:900px }
+.legend { display:none; }
+</style>
+

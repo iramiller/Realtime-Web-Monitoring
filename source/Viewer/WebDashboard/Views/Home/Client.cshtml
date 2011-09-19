@@ -1,0 +1,32 @@
+﻿@{
+    ViewBag.Title = "Client";
+}
+
+<h2>Client - @ViewBag.ClientAddress</h2>
+
+
+<img src="@Url.Content(String.Format("~/contents/countryflags/{0}.gif", ViewBag.Location.countryCode))" /> @ViewBag.Location.countryName (@ViewBag.Location.city, @ViewBag.Location.regionName)
+
+<br /><br />
+Browser(s):<ul>
+@foreach(HttpBrowserCapabilities bcap in ViewBag.UserAgents) {
+	if (bcap != null) {
+		@Html.Raw("<li>" + bcap.Type + ", " + bcap.Platform + ", <br/><span style=\"font-size:.8em;padding-left:3em;\">" + bcap.Capabilities[""] + "</span></li>")
+	} else {
+		@Html.Raw("<li>User agent not provided.</li>")	
+	}
+}
+</ul>
+<br />
+Last Visited (date/time)
+
+Sources
+
+<br /><h3><a href="@Url.Content("~/events?src=iis&limit=50&filter="){ClientAddress:'@ViewBag.ClientAddress'}">Recent Requests</a></h3>
+@Html.Partial("Tables/_LatestRequests")
+
+<script type="text/javascript">
+	iisEventTable.clientIP = '@ViewBag.ClientAddress';
+	wafTable.specificHost = '@ViewBag.ClientAddress';
+	wafTable.filterType = 'ClientAddress';
+</script>

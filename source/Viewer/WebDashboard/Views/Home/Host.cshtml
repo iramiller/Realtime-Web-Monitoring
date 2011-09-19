@@ -1,0 +1,18 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewBag.Title = ViewBag.HostName + " Status";
+}
+
+@Html.Partial("Graphs/_CurrentServerTrafficGraph")
+<br /><h3><a href="@Url.Content("~/events?src=l4n&limit=50&filter="){SourceHost:'@ViewBag.HostName'}">Recent Log Entries</a></h3>
+@Html.Partial("Tables/_L4NLatestEvents")
+
+<script type="text/javascript">
+	serverGraph.specificHost = '@ViewBag.HostName';
+	loggingTable.specificHost = '@ViewBag.HostName';
+</script>
+
+<style>
+.graphContainer { width:900px }
+.legend { display:none; }
+</style>
