@@ -1,0 +1,138 @@
+﻿<script language="javascript">
+
+	var serverGraph = {
+		sChart: {},
+		firstTime: 1,
+		dataSet: { 'label': [], 'values': [] },
+		specificHost: null,
+		hostNames: {},
+		updates: {},
+
+		loadRealtimeResults: function () {
+			$.ajax({
+				url: "@Url.Content("~/Realtime")",
+				dataType: "json",
+				data: {
+					src: "ServerMonitor",
+					limit: (this.firstTime ? 30 : 1)
+				},
+				success: function (data) {
+					$.each(data.reverse(), function (index, dta) {
+						serverGraph.updates = {};
+						$.each(dta.Results, function (index, rs) {
+							if (!serverGraph.specificHost || serverGraph.specificHost == rs.ServerMonitor.SourceHost) {
+								if (!serverGraph.hostNames[rs.ServerMonitor.SourceHost]) {
+									serverGraph.hostNames[rs.ServerMonitor.SourceHost] = 1;
+									serverGraph.dataSet.label.push(rs.ServerMonitor.SourceHost);
+									$.each(serverGraph.dataSet.values, function (index, dval) {
+										dval.values.push(0); // need to add a zero to all existing samples for this new sample.
+									});
+								}
+								serverGraph.updates[rs.ServerMonitor.SourceHost] = rs.ServerMonitor.TrafficCount;
+							}
+						});
+						var measures = [];
+						$.each(serverGraph.dataSet.label, function (index, dl) {
+							measures.push((serverGraph.updates[dl] ? serverGraph.updates[dl] : 0));
+						});
+						serverGraph.dataSet.values.push({ 'label': 'time', 'values': measures.slice(0, measures.length) });
+					});
+					if (serverGraph.dataSet.values.length > 30)
+						serverGraph.dataSet.values.splice(0, 1);
+					$.each(serverGraph.dataSet.values, function (index, dsv) {
+						dsv.label = "-" + (29 - index) + "m";
+					});
+					if (serverGraph.firstTime) {
+						serverGraph.sChart.loadJSON(serverGraph.dataSet);
+						serverGraph.firstTime = 0;
+					} else
+						serverGraph.sChart.updateJSON(serverGraph.dataSet);
+				},
+				error: function (xhr, status, err) {
+					window.alert(status + ' ' + err);
+				}
+			});
+		},
+		createSessionChart: function () {
+			this.sChart = new $jit.AreaChart({
+				injectInto: 'serverChart',
+				animate: true,
+				Margin: {
+					top: 5,
+					left: 5,
+					right: 5,
+					bottom: 5
+				},
+				labelOffset: 10,
+				showAggregates: false,
+				type: 'stacked',
+				showLabels: true,
+				Label: {
+					size: 8,
+					family: 'Arial',
+					color: 'white'
+				},
+				//tooltip options
+				Tips: {
+					enable: true,
+					onShow: function (tip, elem) {
+						if (serverGraph.specificHost) 
+							tip.innerHTML = "<b>" + serverGraph.serverHostName(elem.name) + "</b> (" + elem.value + ")";
+						else
+							tip.innerHTML = "<b>" + serverGraph.serverHostName(elem.name) + "</b>";
+					}
+				},
+				filterOnClick: true,
+				restoreOnRightClick: true
+			});
+		},
+		serverNames: {
+			'10.0.0.1': 'Server Name'
+		},
+
+		serverHostName: function (ip) {
+			if (this.serverNames[ip])
+				return this.serverNames[ip];
+			else
+				return ip;
+		},
+
+		legendUpdate: function () {
+			if (this.dataSet.values.length > 1) {
+				var legend = this.sChart.getLegend(), listItems = [], ts = 0;
+				for (var name in this.updates) {
+					var bcolor = ((legend[name]) ? legend[name] : "none");
+					ts += this.updates[name];
+					listItems.push('<div class=\'query-color\' style=\'background-color:' + bcolor + '\'>&nbsp;</div><a class="graphlink" href="@Url.Content("~/Home/Host")?n=' + name + '">' + serverGraph.serverHostName(name) + "</a> (" + this.updates[name] + ")");
+				}
+				listItems.sort(function (a, b) {
+					var aval = a.substring(a.lastIndexOf("(") + 1, a.lastIndexOf(")"));
+					var bval = b.substring(b.lastIndexOf("(") + 1, b.lastIndexOf(")"));
+					return bval - aval;
+				});
+				$('#serverLegendList')[0].innerHTML = '<li>' + listItems.join('</li><li>') + '</li>';
+			}
+		},
+
+		dataRefresh: function () {
+			this.loadRealtimeResults();
+			if (!this.specificHost)
+				setTimeout('serverGraph.legendUpdate()', 1000);
+			setTimeout('serverGraph.dataRefresh()', 60000);
+		}
+	};
+
+	$().ready(function () {
+		serverGraph.createSessionChart();
+		serverGraph.dataRefresh();
+		if (serverGraph.specificHost) {
+			$('#serverTitle')[0].innerHTML = serverGraph.serverHostName(serverGraph.specificHost) + ' Traffic';
+		}
+	});
+</script>
+<div class="graphContainer">
+	<div class="legend"><ul id="serverLegendList" class="legendList"></ul></div>
+	<div id="serverTitle" class="graphTitle">Traffic By Server</div>
+	<div id="serverChart" class="graphChart"></div>
+	<div style="clear:both;"></div>
+</div>

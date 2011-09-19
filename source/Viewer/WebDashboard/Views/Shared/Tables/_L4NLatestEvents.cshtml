@@ -1,0 +1,89 @@
+﻿<table id="l4nLatest" style="width:900px;background-color:#1a1a1a">
+	<thead style="height:2.2em;">
+		<tr>
+			<th>
+				Age
+			</th>
+			<th>
+				SourceApplication
+			</th>
+			<th>
+				LogSource
+			</th>
+			<th>
+				Message
+			</th>
+		</tr>
+	</thead>
+	<tbody id="l4nevents">
+	</tbody>
+</table>
+<script type="text/javascript">
+	
+	var loggingTable = {
+		specificHost: null,
+		L4NHighlightColor: function(pri) {
+			switch (pri) {
+				case 0: return "color:red";
+				case 1: return "color:red";
+				case 2: return "color:red";
+				case 3: return "color:red";
+				case 4: return "color:yellow";
+				case 6: return "color:light-gray";
+				case 7: return "color:light-gray";
+			}
+			return "";
+		},
+		LoadData: function () {
+			$.ajax({
+				url: "@Url.Content("~/events/l4n")",
+				dataType: "json",
+				data: {
+					limit: 10,
+					filter: (loggingTable.specificHost ? '{SourceHost:\''+ loggingTable.specificHost + '\'}' : null)
+				},
+				success: function (data) {
+					$("tbody#l4nevents").empty();
+
+					$.each(data, function (index, evt) {
+						if (!loggingTable.specificHost || loggingTable.specificHost == evt.SourceHost) {
+							$("tbody#l4nevents").append($('<tr>')
+								.attr('title', evt.Message)
+								.attr('style', loggingTable.L4NHighlightColor(evt.Priority))
+								.append($('<td>').attr('style', 'text-align:center;').text(FormatDate(evt.EventDate)))
+								.append($('<td>').attr('style', 'text-align:center;').append(loggingTable.formatSourceApp(evt.SourceApplication)))
+								.append($('<td>').attr('style', 'text-align:center;').text(evt.LogSource))
+								.append($('<td>').text(evt.Message))
+							);
+						}
+					});
+					if (data.length < 1)
+						$("tbody#l4nevents").append($('<tr>').append($('<td>').attr('colspan', '4').attr('align', 'center').text('No Recent Log Entries are available')));
+				},
+				error: function (xhr, status, err) {
+					window.alert(status + ' ' + err);
+				}
+			});
+		},
+
+		formatSourceApp: function(app) {
+			return $('<a>').attr('href', "@Url.Content("~/events?src=l4n")&filter={SourceApplication:'" + app + "'}&limit=100").text(app);
+		},
+
+		refreshL4NTable: function () {
+			loggingTable.LoadData();
+			setTimeout('loggingTable.refreshL4NTable()', 30000);
+		}
+	}
+
+	$().ready(function () {
+		loggingTable.refreshL4NTable();
+	});
+
+	$('#wafevents tr[title]')
+		.hover(function () {
+			showTooltip($(this));
+		}, function () {
+			hideTooltip();
+	});
+</script>

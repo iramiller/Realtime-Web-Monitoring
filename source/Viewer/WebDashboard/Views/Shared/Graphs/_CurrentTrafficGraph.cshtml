@@ -1,0 +1,124 @@
+﻿<script language="javascript">
+
+
+	var realtimeTrafficGraph = {
+		Chart: null,
+		FirstTime: 1,
+		DataSet: { 'label': [], 'values': [] },
+		HostNames: {},
+		Updates: {},
+		specificHost: null,
+
+		loadData: function () {
+			$.ajax({
+				url: "@Url.Content("~/Realtime")",
+				dataType: "json",
+				data: {
+					src: "TrafficMonitor",
+					limit: (realtimeTrafficGraph.FirstTime ? 30 : 1)
+				},
+				success: function (data) {
+					$.each(data.reverse(), function (index, dta) {
+						realtimeTrafficGraph.Updates = {};
+						$.each(dta.Results, function (index, rs) {
+							if (!realtimeTrafficGraph.specificHost || realtimeTrafficGraph.specificHost == rs.TrafficMonitor.HostName) {
+								if (!realtimeTrafficGraph.HostNames[rs.TrafficMonitor.HostName] && (realtimeTrafficGraph.specificHost || rs.TrafficMonitor.TrafficCount > 60)) {
+									realtimeTrafficGraph.HostNames[rs.TrafficMonitor.HostName] = 1;
+									realtimeTrafficGraph.DataSet.label.push(rs.TrafficMonitor.HostName);
+									$.each(realtimeTrafficGraph.DataSet.values, function (index, dval) {
+										dval.values.push(0); // need to add a zero to all existing samples for this new sample.
+									});
+								}
+								realtimeTrafficGraph.Updates[rs.TrafficMonitor.HostName] = rs.TrafficMonitor.TrafficCount / 60;
+							}
+						});
+						var measures = [];
+						$.each(realtimeTrafficGraph.DataSet.label, function (index, dl) {
+							measures.push((realtimeTrafficGraph.Updates[dl] ? realtimeTrafficGraph.Updates[dl] : 0));
+						});
+						realtimeTrafficGraph.DataSet.values.push({ 'label': 'time', 'values': measures.slice(0, measures.length) });
+					});
+					if (realtimeTrafficGraph.DataSet.values.length > 30)
+						realtimeTrafficGraph.DataSet.values.splice(0, 1);
+					$.each(realtimeTrafficGraph.DataSet.values, function (index, dsv) {
+						dsv.label = "-" + (29 - index) + "m";
+					});
+					if (realtimeTrafficGraph.FirstTime) {
+						realtimeTrafficGraph.Chart.loadJSON(realtimeTrafficGraph.DataSet);
+						realtimeTrafficGraph.FirstTime = 0;
+					} else
+						realtimeTrafficGraph.Chart.updateJSON(realtimeTrafficGraph.DataSet);
+				},
+				error: function (xhr, status, err) {
+					window.alert(status + ' ' + err);
+				}
+			});
+		},
+
+		createTrafficChart: function () {
+			realtimeTrafficGraph.Chart = new $jit.AreaChart({
+				injectInto: 'trafficChart',
+				animate: true,
+				Margin: {
+					top: 5,
+					left: 5,
+					right: 5,
+					bottom: 5
+				},
+				labelOffset: 10,
+				showAggregates: false,
+				type: 'stacked',
+				showLabels: true,
+				Label: {
+					size: 8,
+					family: 'Arial',
+					color: 'white'
+				},
+				//tooltip options
+				Tips: {
+					enable: true,
+					onShow: function (tip, elem) {
+						tip.innerHTML = "<b>" + elem.name + "</b>: " + elem.value.toFixed(2) + " r/sec";
+					}
+				},
+				filterOnClick: true,
+				restoreOnRightClick: true
+			});
+		},
+
+		updateLegend: function () {
+			var legend = realtimeTrafficGraph.Chart.getLegend(), listItems = [], ts = 0;
+			for (var name in realtimeTrafficGraph.Updates) {
+				var bcolor = ((legend[name]) ? legend[name] : "none");
+				ts += realtimeTrafficGraph.Updates[name];
+				listItems.push('<div class=\'query-color\' style=\'background-color:' + bcolor +
+					 '\'></div><a class="graphlink" href="@Url.Content("~/Home/Site")?n=' + name +
+					  '">' + name + '</a> (' + realtimeTrafficGraph.Updates[name].toFixed(1) + ')');
+			}
+			listItems.sort(function (a, b) {
+				var aval = a.substring(a.lastIndexOf("(") + 1, a.lastIndexOf(")"));
+				var bval = b.substring(b.lastIndexOf("(") + 1, b.lastIndexOf(")"));
+				return bval - aval;
+			});
+			$('#trafficTitle')[0].innerHTML = ts.toFixed(1) + " r/sec";
+			$('#trafficLegendList')[0].innerHTML = '<li>' + listItems.join('</li><li>') + '</li>';
+		},
+
+		refreshData: function () {
+			realtimeTrafficGraph.loadData();
+			setTimeout('realtimeTrafficGraph.updateLegend()', 1000);
+			setTimeout('realtimeTrafficGraph.refreshData()', 60000);
+		}
+	}
+
+	$().ready(function () {
+		realtimeTrafficGraph.createTrafficChart();
+		realtimeTrafficGraph.refreshData();
+	});
+</script>
+<div class="graphContainer">
+	<div class="legend"><ul id="trafficLegendList" class="legendList"></ul></div>
+	<div id="trafficTitle" class="graphTitle">Request Per Second</div>
+	<div id="trafficChart" class="graphChart"></div>
+	<div style="clear:both;"></div>
+</div>

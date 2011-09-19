@@ -1,0 +1,67 @@
+﻿<table id="latestRequestTable" style="width:900px;background-color:#1a1a1a;text-align:center">
+	<thead style="height:2.2em;">
+		<tr>
+			<th style="text-align:left;padding-left:5px;">
+				Method
+			</th>
+			<th>
+				Request
+			</th>
+			<th>
+				Referer
+			</th>
+			<th>
+				Response (ms)
+			</th>
+			<th>
+				Elapsed Time
+			</th>
+		</tr>
+	</thead>
+	<tbody id="latestRequests">
+	</tbody>
+</table>
+<script type="text/javascript">
+
+	$().ready(function () {
+		iisEventTable.refreshData();
+	});
+
+	var iisEventTable = {
+	
+		clientIP: '127.0.0.1',
+
+		loadData: function () {
+			$.ajax({
+				url: "@Url.Content("~/events/iis")",
+				dataType: "json",
+				data: {
+					limit: 10,
+					filter: "{ClientAddress:'" + iisEventTable.clientIP + "'}"
+				},
+				success: function (data) {
+					$("tbody#latestRequests").empty();
+					$.each(data, function (index, rs) {
+						$("tbody#latestRequests").append($('<tr>')
+							.append($('<td>').text(rs.HttpVerb))
+							.append($('<td>').attr('align', 'left').text(rs.RequestPage))
+							.append($('<td>').attr('align', 'left').text(rs.Referer))
+							.append($('<td>').text(rs.StatusCode + '.' + rs.SubStatus + ' (' + rs.ProcessingTime + ')'))
+							.append($('<td>').text(FormatDate(rs.ProcessedTime)))
+						);
+					});
+					if (data.length < 1)
+							$("tbody#latestRequests").append($('<tr>').append($('<td>').attr('colspan', '4').text('No recent request data is available.')));
+				},
+				error: function (xhr, status, err) {
+					window.alert(status + ' ' + err);
+				}
+			});
+		},
+
+		refreshData: function () {
+			iisEventTable.loadData();
+			setTimeout('iisEventTable.refreshData()', 30000);
+		}
+	}
+</script>

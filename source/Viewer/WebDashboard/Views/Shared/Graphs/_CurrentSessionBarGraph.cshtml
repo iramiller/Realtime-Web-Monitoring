@@ -1,0 +1,122 @@
+﻿<script language="javascript">
+
+	var sessionGraph = {
+		sChart: {},
+		firstTime: 1,
+		dataSet: { 'label': [], 'values': [] },
+		hostNames: {},
+		specificHost: null,
+		updates: {},
+
+		loadRealtimeResults: function () {
+			$.ajax({
+				url: "@Url.Content("~/Realtime")",
+				dataType: "json",
+				data: {
+					src: "SessionMonitor",
+					limit: (this.firstTime ? 30 : 1)
+				},
+				success: function (data) {
+					$.each(data.reverse(), function (index, dta) {
+						sessionGraph.updates = {};
+						$.each(dta.Results, function (index, rs) {
+							if (!sessionGraph.specificHost || sessionGraph.specificHost == rs.SessionMonitor.HostName) {
+								if (!sessionGraph.hostNames[rs.SessionMonitor.HostName] && (sessionGraph.specificHost || rs.SessionMonitor.SessionCount > 50)) {
+									sessionGraph.hostNames[rs.SessionMonitor.HostName] = 1;
+									sessionGraph.dataSet.label.push(rs.SessionMonitor.HostName);
+									$.each(sessionGraph.dataSet.values, function (index, dval) {
+										dval.values.push(0); // need to add a zero to all existing samples for this new sample.
+									});
+								}
+								sessionGraph.updates[rs.SessionMonitor.HostName] = rs.SessionMonitor.SessionCount;
+							}
+						});
+						var measures = [];
+						$.each(sessionGraph.dataSet.label, function (index, dl) {
+							measures.push((sessionGraph.updates[dl] ? sessionGraph.updates[dl] : 0));
+						});
+						sessionGraph.dataSet.values.push({ 'label': 'time', 'values': measures.slice(0, measures.length) });
+					});
+					if (sessionGraph.dataSet.values.length > 30)
+						sessionGraph.dataSet.values.splice(0, 1);
+					$.each(sessionGraph.dataSet.values, function (index, dsv) {
+						dsv.label = "-" + (29 - index) + "m";
+					});
+					if (sessionGraph.firstTime) {
+						sessionGraph.sChart.loadJSON(sessionGraph.dataSet);
+						sessionGraph.firstTime = 0;
+					} else
+						sessionGraph.sChart.updateJSON(sessionGraph.dataSet);
+				},
+				error: function (xhr, status, err) {
+					window.alert(status + ' ' + err);
+				}
+			});
+		},
+		createSessionChart: function () {
+			this.sChart = new $jit.AreaChart({
+				injectInto: 'sessionChart',
+				animate: true,
+				Margin: {
+					top: 5,
+					left: 5,
+					right: 5,
+					bottom: 5
+				},
+				labelOffset: 10,
+				showAggregates: false,
+				type: 'stacked',
+				showLabels: true,
+				Label: {
+					size: 8,
+					family: 'Arial',
+					color: 'white'
+				},
+				//tooltip options
+				Tips: {
+					enable: true,
+					onShow: function (tip, elem) {
+						tip.innerHTML = "<b>" + elem.name + "</b>: " + elem.value + " sessions";
+					}
+				},
+				filterOnClick: true,
+				restoreOnRightClick: true
+			});
+		},
+
+		legendUpdate: function () {
+			if (this.dataSet.values.length > 1) {
+				var legend = this.sChart.getLegend(), listItems = [], ts = 0;
+				for (var name in this.updates) {
+					var bcolor = ((legend[name]) ? legend[name] : "none");
+					ts += this.updates[name];
+					listItems.push('<div class=\'query-color\' style=\'background-color:' + bcolor + '\'>&nbsp;</div><a class="graphlink" href="@Url.Content("~/Home/Site")?n=' + name + '">' + name + '</a> (' + this.updates[name] + ")");
+				}
+				listItems.sort(function (a, b) {
+					var aval = a.substring(a.lastIndexOf("(") + 1, a.lastIndexOf(")"));
+					var bval = b.substring(b.lastIndexOf("(") + 1, b.lastIndexOf(")"));
+					return bval - aval;
+				});
+				$('#sessionTitle')[0].innerHTML = ts + ' Sessions';
+				$('#sessionLegendList')[0].innerHTML = '<li>' + listItems.join('</li><li>') + '</li>';
+			}
+		},
+
+		dataRefresh: function () {
+			this.loadRealtimeResults();
+			setTimeout('sessionGraph.legendUpdate()', 1000);
+			setTimeout('sessionGraph.dataRefresh()', 60000);
+		}
+	};
+
+	$().ready(function () {
+		sessionGraph.createSessionChart();
+		sessionGraph.dataRefresh();
+	});
+</script>
+<div class="graphContainer">
+	<div class="legend"><ul id="sessionLegendList" class="legendList"></ul></div>
+	<div id="sessionTitle" class="graphTitle">Active Sessions</div>
+	<div id="sessionChart" class="graphChart"></div>
+	<div style="clear:both;"></div>
+</div>

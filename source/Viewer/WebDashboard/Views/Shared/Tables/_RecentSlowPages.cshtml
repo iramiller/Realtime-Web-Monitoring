@@ -1,0 +1,114 @@
+﻿<table id="RecentSlowPagesHeader" style="width:900px;background-color:#1a1a1a;text-align:center">
+	<thead style="height:2.2em;">
+		<tr>
+			<th style="text-align:left;padding-left:5px;">
+				Resource
+			</th>
+			<th>
+				&nbsp;
+			</th>
+			<th>
+				Avg (ms)
+			</th>
+			<th>
+				Access Count
+			</th>
+		</tr>
+	</thead>
+	<tbody id="RecentSlowPages" style="height: 3em;margin-bottom:10px;">
+	</tbody>
+</table>
+
+<script type="text/javascript">
+
+	$().ready(function () {
+		slowPageTable.refreshTable();
+	});
+
+	var slowPageTable = {
+		specificHost: null,
+
+		loadData: function () {
+			$.ajax({
+				url: "@Url.Content("~/Realtime?src=LatencyMonitor")",
+				dataType: "json",
+				data: {
+					limit: 30
+				},
+				success: function (data) {
+					var resources = {};
+					var dataSet = { 'label': [], 'values': [] };
+					var updates = {};
+					$.each(data.reverse(), function (index, evt) {
+						$.each(evt.Results, function (index, rs) {
+							if (!slowPageTable.specificHost || slowPageTable.specificHost == rs.LatencyMonitor.HostName) {
+								if (!resources[rs.LatencyMonitor.HostName+rs.LatencyMonitor.RequestPage]) {
+									resources[rs.LatencyMonitor.HostName+rs.LatencyMonitor.RequestPage] = { 'host': rs.LatencyMonitor.HostName, 'page': rs.LatencyMonitor.RequestPage };
+									dataSet.label.push(rs.LatencyMonitor.HostName+rs.LatencyMonitor.RequestPage);
+									$.each(dataSet.values, function (index, dval) {
+										dval.values.push({'avg':0, 'dps':0 }); // need to add a zero to all existing samples for this new sample.
+									});
+								}
+								updates[rs.LatencyMonitor.HostName+rs.LatencyMonitor.RequestPage] = { 'avg': rs.LatencyMonitor.average, 'dps' : rs.LatencyMonitor.datapoints }
+							}
+						});
+						// build an array of samples that match our array of labels with a zero measure for any missing samples
+						var measures = [];
+						$.each(dataSet.label, function (index, dl) {
+							measures.push((updates[dl] ? updates[dl] : {'avg':0, 'dps':0 }));
+						});
+						// push our array of samples into the dataset.
+						dataSet.values.push({ 'label': 'time', 'values': measures.slice(0, measures.length) });
+					});
+					$("tbody#RecentSlowPages").empty();
+					if (data.length < 1)
+						$("tbody#RecentSlowPages").append($('<tr>').append($('<td>').attr('colspan', '4').text('No recent high latency pages observed.')));
+					else {
+						$.each(dataSet.label, function (index, dl) {
+							var samples = '';
+							var scnt = dataSet.values[index].values.length;
+							var sttl = 0; // total of average samples
+							var acnt = 0; // total access count
+							$.each(dataSet.values, function(index2, dlv) {
+								samples = samples + ',' + ((Math.floor(dlv.values[index].avg/1000) > 10) ? '10' : Math.floor(dlv.values[index].avg/1000));
+								acnt += dlv.values[index].dps;
+								sttl += dlv.values[index].avg;
+							});
+							samples = samples.substr(1);
+							$("tbody#RecentSlowPages").append($('<tr>')
+								.append($('<td>').attr('style','text-align:left;padding-left:5px;').append(slowPageTable.formatRequestPage(resources[dl].page, resources[dl].host)))
+								.append($('<td>').append($('<span>').attr('class','sparkline').attr('values',samples)))
+								.append($('<td>').attr('style', slowPageTable.highlightColor(dataSet.values[dataSet.values.length-1].values[index].avg))
+									.text(dataSet.values[dataSet.values.length-1].values[index].avg.toFixed(1)))
+								.append($('<td>').text(dataSet.values[dataSet.values.length-1].values[index].dps))
+							);
+						});
+						$('.sparkline').sparkline('html', { type:'bar', chartRangeMin:0, chartRangeMax:10, barWidth:5, colorMap: { '0':'#aaa','1':'#bbb','2':'#ccc','3':'#cccc00','4':'#dddd00','5':'#c00','6':'#c00','7':'#d00','8':'#d00','9':'#e00','10':'#f00' } });
+					}
+				},
+				error: function (xhr, status, err) {
+					window.alert(status + ' ' + err);
+				}
+			});
+		},
+
+		highlightColor: function(latency) {
+			var color = "color:light-gray";
+			if (latency > 5000)
+				color = "color:red;";
+			else if (latency > 3000)
+				color = "color:yellow;";
+			return color;
+		},
+
+		refreshTable: function () {
+			slowPageTable.loadData();
+			setTimeout('slowPageTable.refreshTable()', 30000);
+		},
+
+
+		formatRequestPage: function (requestPage, host) {
+			return $('<a>').attr('href', "@Url.Content("~/Home/Site?n=")" + host).text(host).append($('<a>').attr('href', "@Url.Content("~/Home/Page?r=")" + requestPage + "&n=" + host).text(requestPage));
+		}
+	}
+</script>
