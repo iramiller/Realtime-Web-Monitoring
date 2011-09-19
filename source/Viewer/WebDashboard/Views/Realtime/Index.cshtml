@@ -1,0 +1,14 @@
+﻿@{
+    ViewBag.Title = "Realtime Data";
+}
+@inherits System.Web.Mvc.WebViewPage<string[]>
+<h2>Realtime Sources</h2>
+<ul>
+@foreach (var s in Model)
+{
+	<li><a href="./Realtime?src=@s">@s</a></li>
+}
+</ul>
+
+<h3>Recent Slow Pages</h3>
+@Html.Partial("Tables/_RecentSlowPages") 

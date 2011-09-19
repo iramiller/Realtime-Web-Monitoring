@@ -1,0 +1,146 @@
+body
+{
+    font-size: 75%;
+    font-family: Verdana, Tahoma, Arial, "Helvetica Neue", Helvetica, Sans-Serif;
+    color: #999;
+    background-color: #2a2a2a;
+}
+
+/* Styles for basic forms
+-----------------------------------------------------------*/
+
+fieldset 
+{
+    border:1px solid #ddd;
+    padding:0 1.4em 1.4em 1.4em;
+    margin:0 0 1.5em 0;
+}
+
+legend 
+{
+    font-size:1.2em;
+    font-weight: bold;
+}
+
+textarea 
+{
+    min-height: 75px;
+}
+
+.editor-label 
+{
+    margin: 1em 0 0 0;
+}
+
+.editor-field 
+{
+    margin:0.5em 0 0 0;
+}
+
+
+/* Styles for validation helpers
+-----------------------------------------------------------*/
+.field-validation-error
+{
+    color: #ff0000;
+}
+
+.field-validation-valid
+{
+    display: none;
+}
+
+.input-validation-error
+{
+    border: 1px solid #ff0000;
+    background-color: #ffeeee;
+}
+
+.validation-summary-errors
+{
+    font-weight: bold;
+    color: #ff0000;
+}
+
+.validation-summary-valid
+{
+    display: none;
+}
+/*TOOLTIPS*/
+.tip {
+    color: #111;
+    width: 139px;
+    background-color: white;
+    border:1px solid #ccc;
+    -moz-box-shadow:#555 2px 2px 8px;
+    -webkit-box-shadow:#555 2px 2px 8px;
+    -o-box-shadow:#555 2px 2px 8px;
+    box-shadow:#555 2px 2px 8px;
+    opacity:0.9;
+    filter:alpha(opacity=90);
+    font-size:10px;
+    font-family:Verdana, Geneva, Arial, Helvetica, sans-serif;
+    padding:7px;
+}
+.graphContainer
+{
+	background-color:#1a1a1a;
+	color:#ccc;
+	width:1125px;
+	text-align:left;
+}
+
+.legend 
+{
+	position:relative;
+	float:right;
+	width:225px;
+	height:345px;
+	margin:auto;
+	overflow:auto;
+	white-space:nowrap;
+}
+
+.legendList {
+	margin:3px;
+	padding:5px;
+	text-align:left;
+	text-indent:2px;
+}
+
+.legendList li {
+	list-style: none;
+	margin-bottom:3px;
+}
+
+.graphTitle
+{
+	float:left;
+	line-height:1em;
+	font-size:30px;
+	font-weight:bold;
+	margin-top:20px;
+	margin-left:20px;
+	margin-bottom: -10px;
+}
+
+.graphChart
+{
+	position:relative;
+	float:left;
+	width:900px;
+	height:300px;
+	margin:auto;
+	overflow:hidden;
+}
+
+.query-color {
+	border:1px solid #999999;
+	float:left;
+	height:10px;
+	margin:3px 3px 0 0;
+	width:10px;
+}
+a { color:#ccc;text-decoration:none; }
+a:hover { color:#999; }
+a:visited { color:#ccc; }

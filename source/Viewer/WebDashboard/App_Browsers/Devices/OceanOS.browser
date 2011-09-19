@@ -1,0 +1,434 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- 
+Used to determine Browser Capabilities by the Browsers UserAgent String and related
+Browser supplied Headers.
+Copyright (C) 2002-Present  Owen Brady (Ocean at owenbrady dot net)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy 
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights 
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+copies of the Software, and to permit persons to whom the Software is furnished
+to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all 
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<browsers>
+  <!--OS Detection -->
+  <!-- http://msdn.microsoft.com/workshop/author/dhtml/overview/aboutuseragent.asp -->
+  <gateway id="OS" parentID="Default" >
+    <identification>
+      <userAgent match="." />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Unknown" />
+    </capabilities>
+  </gateway>
+  <browser id="Windows" parentID="OS" >
+    <identification>
+      <userAgent nonMatch="PalmOS|PalmSource" />
+      <userAgent match="Windows|Win|16bit|Win16" />
+    </identification>
+    <capabilities>
+    </capabilities>
+  </browser>
+  <browser id="Windows55" parentID="Windows" >
+    <identification>
+      <userAgent match="Windows NT 5\.5" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Unknown" />
+    </capabilities>
+  </browser>
+  <browser id="WindowsXP" parentID="Windows" >
+    <identification>
+      <userAgent match="Windows XP|Windows NT 5\.1|WinNT 5\.1" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Microsoft Windows XP" />
+    </capabilities>
+  </browser>
+  <browser id="Windows2000" parentID="Windows" >
+    <identification>
+      <userAgent match="Windows 2000|Windows NT 5\.0|WinNT 5\.0" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Microsoft Windows 2000" />
+    </capabilities>
+  </browser>
+  <browser id="WindowsME" parentID="Windows" >
+    <identification>
+      <userAgent match="Windows ME|Win 9x 4\.90|Windows 4\.90|WinME" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Microsoft Windows ME" />
+      <capability name="platform"    value="WinME" />
+    </capabilities>
+  </browser>
+  <browser id="Windows98" parentID="Windows" >
+    <identification>
+      <userAgent match="Windows 98|Win98|Windows 4\.10" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Microsoft Windows 98" />
+    </capabilities>
+  </browser>
+  <browser id="WindowsME2" parentID="Windows98" >
+    <identification>
+      <userAgent match="Windows ME|Win 9x 4\.90|Windows 4\.90|WinME" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Microsoft Windows ME" />
+      <capability name="platform"    value="WinME" />
+    </capabilities>
+  </browser>
+  <browser id="Windows95" parentID="Windows" >
+    <identification>
+      <userAgent match="Windows 95|Win95" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Microsoft Windows 95" />
+    </capabilities>
+  </browser>
+  <!-- No Sure way to determine if its Windows Sever 2003 or Windows XP 64-->
+  <browser id="Windows52" parentID="Windows" >
+    <identification>
+      <userAgent match="Windows NT 5\.2" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Windows NT 5.2" />
+    </capabilities>
+  </browser>
+  <!-- No Sure way to determine if its Windows Sever 2008 or Windows Vista or Windows Server Home--> 
+  <browser id="Windows60" parentID="Windows" >
+    <identification>
+      <userAgent match="Windows NT 6\.0|WinNT 6\.0" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Windows NT 6.0" />
+    </capabilities>
+  </browser>
+  <browser id="WindowsVista" parentID="Windows" >
+    <identification>
+      <userAgent match="Windows Vista" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Microsoft Windows Vista" />
+    </capabilities>
+  </browser>
+  <!--
+  Windows Vista Team Blog : Why 7?
+  http://windowsteamblog.com/blogs/windowsvista/archive/2008/10/14/why-7.aspx
+  
+  This could also be Microsoft Windows Server 2008 R2 Beta as well but will
+  assume the nonserver os by default.
+  -->
+  <browser id="Windows7" parentID="Windows" >
+    <identification>
+      <userAgent match="Windows NT 6\.1|WinNT 6\.1" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Microsoft Windows 7" />
+    </capabilities>
+  </browser> 
+  <browser id="WindowsNT4" parentID="Windows" >
+    <identification>
+      <userAgent match="WinNT4\.0|Windows NT 4\.0|NT4\.0" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Microsoft Windows 4.0" />
+    </capabilities>
+  </browser>
+  <browser id="WindowsNT351" parentID="Windows" >
+    <identification>
+      <userAgent match="Windows NT 3.51" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Microsoft Windows 3.51" />
+    </capabilities>
+  </browser>
+  <browser id="Windows311" parentID="Windows" >
+    <identification>
+      <userAgent match="16bit|Windows 3\.1|Win16" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Microsoft Windows 3.11" />
+    </capabilities>
+  </browser>
+  <browser id="WindowsCE" parentID="Windows" >
+    <identification>
+      <userAgent match="Windows CE|WinCE" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Microsoft Windows CE" />
+    </capabilities>
+  </browser>
+  <browser id="WindowsCE2003" parentID="WindowsCE" >
+    <identification>
+      <userAgent match="Windows CE 4\.21" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Microsoft Windows Mobile 2003" />
+    </capabilities>
+  </browser>
+  <browser id="OSWebTV" parentID="OS" >
+    <identification>
+      <userAgent match="WebTV" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Microsoft WebTV" />
+    </capabilities>
+  </browser>
+  <browser id="MAC" parentID="OS" >
+    <identification>
+      <userAgent match="Mac|PPC" />
+      <userAgent nonMatch="Mach-O" />
+    </identification>
+    <capabilities>
+    </capabilities>
+  </browser>
+  <browser id="MacintoshOSX" parentID="MAC" >
+    <identification>
+      <userAgent match="Mac OS X" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Macintosh OS X" />
+    </capabilities>
+  </browser>
+  <browser id="Macintosh68K" parentID="MAC" >
+    <identification>
+      <userAgent match="(?i-s:Mac_68000)|(?i-s:Macintosh.*68K)" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Macintosh 68K" />
+    </capabilities>
+  </browser>
+  <browser id="MacintoshDarwin" parentID="MAC" >
+    <identification>
+      <userAgent match="(?i-s:Darwin .* Power\sMacintosh)|(?i-s:powerpc-apple-darwin)" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Macintosh Darwin" />
+    </capabilities>
+  </browser>
+  <browser id="MacintoshPPC" parentID="MAC" >
+    <identification>
+      <userAgent match="(?i-s:Mac_PowerPC)|(?i-s:Mac_PPC)|(?i-s:Macintosh.*PPC)|(?i-s:PPC Mac)" />
+      <userAgent nonMatch="(?i-s:Mac OS X)" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Macintosh PPC" />
+    </capabilities>
+  </browser>
+  <browser id="RedHat" parentID="OS" >
+    <identification>
+      <userAgent match="(?i-s:redhat)" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Linux" />
+    </capabilities>
+  </browser>
+  <browser id="Linux" parentID="OS" >
+    <identification>
+      <userAgent match="(?i-s:linux)" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Linux" />
+    </capabilities>
+  </browser>
+  <browser id="BSD" parentID="OS" >
+    <identification>
+      <userAgent match="(?i-s:bsd)" />
+    </identification>
+    <capabilities>
+
+    </capabilities>
+  </browser>
+  <browser id="FreeBSD" parentID="BSD" >
+    <identification>
+      <userAgent match="(?i-s:freebsd)" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="FreeBSD" />
+    </capabilities>
+  </browser>
+  <browser id="OpenBSD" parentID="BSD" >
+    <identification>
+      <userAgent match="(?i-s:OpenBSD)" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="OpenBSD" />
+    </capabilities>
+  </browser>
+  <browser id="NetBSD" parentID="BSD" >
+    <identification>
+      <userAgent match="(?i-s:NetBSD)" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="NetBSD" />
+    </capabilities>
+  </browser>
+  <browser id="SunOS" parentID="OS" >
+    <identification>
+      <userAgent match="(?i-s:SunOS)" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="SunOS" />
+    </capabilities>
+  </browser>
+  <browser id="OS2" parentID="OS" >
+    <identification>
+      <userAgent match="(?i-s:OS/2)" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="OS2" />
+    </capabilities>
+  </browser>
+  <browser id="OS2Warp" parentID="OS2" >
+    <identification>
+      <userAgent match="OS/2; U; Warp 4.5;" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="OS2 Warp 4.5" />
+    </capabilities>
+  </browser>
+  <browser id="IRIX" parentID="OS" >
+    <identification>
+      <userAgent match="(?i-s: IRIX )|(?i-s: IRIX64 )" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="SGI IRIX" />
+    </capabilities>
+  </browser>
+  <browser id="AmigaOS3" parentID="AmigaOS" >
+    <identification>
+      <userAgent match="(?i-s:AmigaOS.3\.9)" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="AmigaOS 3.9" />
+    </capabilities>
+  </browser>
+  <browser id="AmigaOS4" parentID="AmigaOS" >
+    <identification>
+      <userAgent match="(?i-s:AmigaOS4\.0)" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="AmigaOS 4.0" />
+    </capabilities>
+  </browser>
+  <browser id="AmigaOS" parentID="OS" >
+    <identification>
+      <userAgent match="(?i-s:AmigaOS)|(?i-s:Amiga OS)" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="AmigaOS" />
+    </capabilities>
+  </browser>
+  <browser id="SymbianOS" parentID="OS" >
+    <identification>
+      <userAgent match="SymbianOS|(?i-s:Symbian OS)" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="SymbianOS" />
+    </capabilities>
+  </browser>
+  <browser id="OSF1alpha" parentID="OS" >
+    <identification>
+      <userAgent match="(?i-s:OSF1 alpha)|(?i-s:OSF1 .* alpha)" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="OSF1" />
+    </capabilities>
+  </browser>
+  <browser id="BeOS" parentID="OS" >
+    <identification>
+      <userAgent match="BeOS" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="BeOS" />
+    </capabilities>
+  </browser>
+  <browser id="HPUX" parentID="OS" >
+    <identification>
+      <userAgent match="HP-UX" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="HP-UX 9000" />
+    </capabilities>
+  </browser>
+  <browser id="AIX" parentID="OS" >
+    <identification>
+      <userAgent match=" AIX " />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="AIX" />
+    </capabilities>
+  </browser>
+  <browser id="OpenVMS" parentID="OS" >
+    <identification>
+      <userAgent match=" OpenVMS " />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="OpenVMS" />
+    </capabilities>
+  </browser>
+  <browser id="Dreamcast" parentID="OS" >
+    <identification>
+      <userAgent match=" Dreamcast " />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Dreamcast" />
+    </capabilities>
+  </browser>
+  <browser id="Commodore" parentID="OS" >
+    <identification>
+      <userAgent match=" Commodore " />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Commodore" />
+    </capabilities>
+  </browser>
+  <browser id="PalmOS" parentID="OS" >
+    <identification>
+      <userAgent match="PalmOS|PalmSource" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="PalmOS" />
+    </capabilities>
+  </browser>
+  <!-- 
+  Adding Nintendo's Os seen in the wild.
+  -->
+  <browser id="Nintendo" parentID="OS" >
+    <identification>
+      <userAgent match="Nintendo" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Nintendo" />
+    </capabilities>
+  </browser>
+  <browser id="NintendoWii" parentID="Nintendo" >
+    <identification>
+      <userAgent match="Nintendo Wii" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Nintendo Wii" />
+    </capabilities>
+  </browser>
+  <browser id="NintendoDS" parentID="Nintendo" >
+    <identification>
+      <userAgent match="Nintendo DS" />
+    </identification>
+    <capabilities>
+      <capability name="OS" value="Nintendo DS" />
+    </capabilities>
+  </browser>
+</browsers>

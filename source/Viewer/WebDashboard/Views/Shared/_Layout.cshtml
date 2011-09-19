@@ -1,0 +1,18 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <link href="@Url.Content("~/Contents/Site.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Scripts/jquery-1.4.4.min.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/Scripts/proto.date.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/Scripts/jquery.sparkline.min.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/Scripts/partial.view.functions.js")" type="text/javascript"></script>
+	<!--[if IE]><script language="javascript" type="text/javascript" src="@Url.Content("~/Scripts/excanvas.js")"></script><![endif]-->
+	<script language="javascript" type="text/javascript" src="@Url.Content("~/Scripts/jit.js")"></script>
+    <script src="@Url.Content("~/Scripts/CreateGraphObjects.js")" type="text/javascript"></script>
+</head>
+
+<body>
+    @RenderBody()
+</body>
+</html>
