@@ -17,7 +17,7 @@ by priority and source are available.
 #### log4net Config
 
 In order to use the configuration sample the `RemoteAddress` of the log server must
-be set along with the `APP-NAME` in the configuration fragment below.  
+be set along with the `APP-NAME` in the configuration fragment below.
 
 <% code 'xml' do %>
 <log4net>

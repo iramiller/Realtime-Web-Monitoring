@@ -26,7 +26,7 @@ httpmodule would only function in integrated mode.
     *  Request Start
     *  On Send Request
     *  Syslog Sender
-    
+
 ----------------------------------
 
 <a name="install"></a>
@@ -37,11 +37,11 @@ on the IIS server will have the module included in their processing pipelines.
 
 In order to install the module this way the root configurations of IIS must be
 modified.  This is a straight forward process but it goes without saying that you
-should probably make backup copies of all of these files before making changes -- 
+should probably make backup copies of all of these files before making changes --
 even if you know what you are doing.
 
 The first step is to build the NativeSyslogModule project in both 32bit and 64bit
-formats.  The easiest way to do this is to open the 
+formats.  The easiest way to do this is to open the
 `/source/Collectors/IIS7/NativeSyslogPublisher.vcxproj` in Visual Studio and build
 both 32 and 64bit release targets.  There are two DLL files which must be copied on
 to the servers (along with the MSVCRT100.dll files if not present).  Keep track of
@@ -65,10 +65,10 @@ assembly formats or IIS will not function.
 <% code 'xml' do %>
  <globalModules>
     ...
-    <add name="NativeSyslogPublisher" 
+    <add name="NativeSyslogPublisher"
     image="PATH-TO-FILE\NativeSyslogPublisher.dll" preCondition="bitness32" />
-    <add name="NativeSyslogPublisher-x64" 
-    image="PATH-TO-FILE\NativeSyslogPublisher-64.dll" preCondition="bitness64" />	
+    <add name="NativeSyslogPublisher-x64"
+    image="PATH-TO-FILE\NativeSyslogPublisher-64.dll" preCondition="bitness64" />
  </globalModules>
 <% end %>
 
@@ -80,7 +80,7 @@ in the NativeSyslogPublisher_schema.xml file.
 <% code 'xml' do %>
    <nativeSyslogPublisher logServer="127.0.0.1" />
 <% end %>
- 
+
 While the DLL files were registered above and will be loaded by IIS on startup, this
 section actually associates the modules with every application pool.  The lockItem
 directive will prevent the modules from being removed from the app pool if set.
@@ -89,7 +89,7 @@ directive will prevent the modules from being removed from the app pool if set.
      <system.webServer>
          <modules>
              ...
-             <add name="NativeSyslogPublisher" lockItem="false" 
+             <add name="NativeSyslogPublisher" lockItem="false"
              preCondition="bitness32" />
              <add name="NativeSyslogPublisher-x64" lockItem="false"
              preCondition="bitness64" />
@@ -116,7 +116,7 @@ to IIS7.
 
 #### Bindings
 The HTTP Module hooks the start request and send response events.  It is important
-for computing the correct timing that we are near the first of the modules to be 
+for computing the correct timing that we are near the first of the modules to be
 called at the start of the request and for when the request is sent.  Paradoxically
 we must be the lowest priority for the send response registration.  This is explained
 by the need for most important filters to have the final say in changing a response

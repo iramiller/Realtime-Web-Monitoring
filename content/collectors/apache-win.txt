@@ -24,7 +24,7 @@ most of the data we need to relay to the event sink.
     LogFormat "APACHE:%v %% %>s.0 %T MPS %m \"%U%q\" %{Content-Type}o
 %h / \"%{Referer}i\" \"%{User-agent}i\"" syslog
 	...
-<% end %> 
+<% end %>
 __NOTE:__ Remove the hard return before `%h` in the sample above.
 
 With the log format taken care of the next step is to apply it with a pipe to our
@@ -33,23 +33,23 @@ console program.
  <VirtualHost *:80>
     CustomLog "d:/logfile/directory/path/access.log" common
     CustomLog |"d:/path/to/ConsoleSyslogPublisher.exe" syslog
-<% end%> 
+<% end%>
 
 ----------------------------------
 
-### Console Application 
+### Console Application
 
 The Console application does several things to process the output of apache before
 the data can be sent to the event sink.
 
 1.  Create a proper message header by taking a substring upto and including `MPS`
-1.  Replace % sign in header with IISNSL: 1234567890 where the number is a 
+1.  Replace % sign in header with IISNSL: 1234567890 where the number is a
     unique id for the message
 1.  Remove MPS and insert two numbers “1 1” which are the number of this message
     and total number of messages if the amount of data being sent is larger than
     the MTU of the network (1500)
 1.  Split log event into multiple messages (if required) based on MTU
-    1.  replace any spaces in the quoted terms from APACHE with plus signs. 
+    1.  replace any spaces in the quoted terms from APACHE with plus signs.
     1.  Remove the quotes on these terms
 1.  Send each message from step 4 with the same header calculated in step 3
     but using the correct count “1 3”, “2 3”, “3 3”
@@ -64,7 +64,7 @@ possible to specify a native format string that will exactly match our requireme
 There are multiple potential parts to a message.  Each one will start with the
 following where Page# is the number of this message out of Total#.
 `[Marker, Id, Status.Substatus, TTFB, Page#, Total#]`
- 
+
 The message body will contain the following information spread across the number
 of messages required to fit the data into the packet sized allowed (MTU)
 `[HttpVerb, RequestURI, MIME, ClientIP, AppId, Referrer, UserAgent]`
@@ -75,7 +75,7 @@ this message pipeline based on the above specifications.
 #### From Apache
 The first step is the data output by apache according to our LogFormat specification.
 <% code 'plain_text' do %>
-APACHE:www.website.com % 200.0 156 MPS GET /default.aspx text/html 10.194.17.196 
+APACHE:www.website.com % 200.0 156 MPS GET /default.aspx text/html 10.194.17.196
 / "http://www.google.com/page spaces" "Mozilla/4.0 (compatible; MSIE 7.0;
 Windows NT 5.1; Trident/4.0;)"
 <% end %>
@@ -85,10 +85,10 @@ __NOTE:__ this output is a single line
 The output from the console application will be one (or more) messages based on the
 MTU allowed.
 <% code 'plain_text' do %>
-<110>Feb 04 12:00:00 www.website.com IISNSL: 1352584613 200.0 156 1 1 
+<110>Feb 04 12:00:00 www.website.com IISNSL: 1352584613 200.0 156 1 1
 GET /default.aspx text/html 10.194.17.196 / http://www.google.com/page+spaces
 Mozilla/4.0+(compatible;+MSIE+7.0;+Windows+NT+5.1;+Trident/4.0;)
 <% end %>
 __NOTE:__ this output is a single line with pieces separated by a single space.
- 
+
 
