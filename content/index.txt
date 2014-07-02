@@ -44,6 +44,6 @@ in the database and the viewers which display the information.
 ### Viewers
 
 *  Web Dashboard -- A MVC3 .NET website for viewing event data using tables and
-   graphs generated from data stored in the Mongo database populated by the 
+   graphs generated from data stored in the Mongo database populated by the
    [Event Processing Windows Service](/sinks/windowsservice.html).
 
